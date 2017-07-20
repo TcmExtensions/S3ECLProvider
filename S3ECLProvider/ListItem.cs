@@ -38,58 +38,10 @@ namespace S3ECLProvider
     {
         internal readonly S3Info Info;
         private readonly IEclUri _id;
-        //private readonly string hifen = "-";
-
-
-        //public ListItem(int publicationId, S3Info info)
         public ListItem(IEclUri ecluri, S3Info info)
-        {
-            // S3 s3 = new S3();            
-            Info = info;//s3.GetMediaInfo(info.Name);
+        {              
+            Info = info;
 
-            #region ContentTypes regiosn - Note: Keep updating this list and build the code. // This could be improved in a better way.
-            //switch (Info.ContentType)
-            //{
-            //    case "image/png":
-            //    case "image/jpeg":
-            //    case "image/jpg":
-            //    case "image/gif":
-            //    case "image/bmp":
-            //    case "image/tiff":
-            //    case "image/x-icon":
-
-            //        Info.IsPhoto = true;
-            //        break;
-
-            //    case "video/x-ms-wmv":
-            //    case "application/octet-stream":
-            //        Info.IsVideo = true;
-            //        break;
-
-            //    case "application/pdf":
-            //    case "application/x-zip":
-            //    case "application/x-compressed":
-            //    case "application/zip":
-            //    case "application/msword":
-            //        Info.IsPdf = true;
-            //        break;
-
-            //    case "binary/octet-stream":
-            //    case "application/x-www-form-urlencoded; charset=utf-8":
-            //    case "application/x-directory":
-            //    //case "application/x-amz-json-1.0":
-            //    case null:
-            //        Info.IsFolder = true;
-            //        break;
-
-            //    default:
-            //        Info.IsOther = true;
-            //        break;
-            //}
-
-            #endregion
-
-            //if (Info.IsFolder)
             if (Info.ContentType == "Folder")
             {
                 string itemId = Info.Name;
@@ -102,8 +54,7 @@ namespace S3ECLProvider
                 _id = S3Provider.HostServices.CreateEclUri(ecluri.PublicationId, S3Provider.MountPointId, itemId, DisplayTypeId, EclItemTypes.File);
             }
         }
-
-        // for folders only
+     
         public bool CanGetUploadMultimediaItemsUrl
         {
             get { return true; }
@@ -125,8 +76,7 @@ namespace S3ECLProvider
                 else
                 {
                     return "fls";
-                }
-               //return Info.IsFolder ? "fld" : "fls";
+                }             
             }
         }
 
@@ -157,15 +107,14 @@ namespace S3ECLProvider
 
         public bool CanUpdateTitle
         {
-            get { return true; } //default false
+            get { return true; } 
         }
 
-        //below Property allowed me to set the name as I wanted in Tridion CME
+      
         public string Title
         {
             get
-            {
-                //return Info.Name;
+            {               
                 if (Info.ContentType == "Folder")
                 {
                     var nameArray = Info.Name.Split('/');
@@ -182,8 +131,7 @@ namespace S3ECLProvider
             }
             set { throw new NotSupportedException(); }
         }
-
-        // allow override of dispatch
+       
         public virtual string Dispatch(string command, string payloadVersion, string payload, out string responseVersion)
         {
             throw new NotSupportedException();

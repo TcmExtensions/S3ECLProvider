@@ -22,8 +22,6 @@ namespace S3ECLProvider
         
         public S3Media(IEclUri ecluri, S3Info info) : base(ecluri, info)
         {
-            // if info needs to be fully loaded, do so here            
-            //_id = S3Provider.HostServices.CreateEclUri(publicationId, S3Provider.MountPointId, info.MediaUrl, "vid", EclItemTypes.File);
         }
 
         public S3Media(IEclUri ecluri) : base(ecluri, null)
@@ -34,24 +32,12 @@ namespace S3ECLProvider
         {
             get
             {
-                return Info.Name;
-                //string url = Info.MediaUrl;//S3.GetPhotoUrl(Info, PhotoSizeEnum.Medium);
-                //return url.Substring(url.LastIndexOf('/') + 1);
+                return Info.Name;             
             }
         }
 
         public IContentResult GetContent(IList<ITemplateAttribute> attributes)
-        {
-            // in case we want SDL Tridion to publish the item, we should return the content stream for this S3 photo
-            //using (WebClient webClient = new WebClient())
-            //{
-            //    using (Stream stream = new MemoryStream(webClient.DownloadData(Info.Url)))
-            //    {
-            //        return Provider.HostServices.CreateContentResult(stream, stream.Length, MimeType);
-            //    }                
-            //}
-
-            // S3 photos are already published, so we can return null here
+        {            
             return null;
         }
 
@@ -64,8 +50,7 @@ namespace S3ECLProvider
         {
             string[] supportedAttributeNames = new[] { "style", "width", "height" };
             string supportedAttributes = attributes.SupportedAttributes(supportedAttributeNames);
-
-            // S3 photos are already published, so we can provide a template fragment ourselves
+          
             return string.Format("<img src=\"{0}\" alt=\"{1}\" {2}/>", GetDirectLinkToPublished(attributes), Title, supportedAttributes);
         }
 
@@ -76,8 +61,7 @@ namespace S3ECLProvider
 
         public string MimeType
         {
-            get { return Info.MIMEType; } //Info.ContentType; 
-            //return Info.IsFolder ? "" : Info.IsPdf ? "" : Info.IsPhoto ? "" : Info.IsVideo ? "" : Info.IsOther ? ""; } //"image/jpeg"; }
+            get { return Info.MIMEType; }
         }
 
         public int? Width
@@ -97,7 +81,7 @@ namespace S3ECLProvider
 
         public bool CanUpdateTitle
         {
-            get { return false; } //default false
+            get { return false; }
         }
 
         public DateTime? Created
@@ -134,7 +118,6 @@ namespace S3ECLProvider
                 schema.Fields.Add(S3Provider.HostServices.CreateNumberFieldDefinition("Size", "Size (KB)", 0, 1));
                 schema.Fields.Add(S3Provider.HostServices.CreateSingleLineTextFieldDefinition("MimeType", "MIME type", 0, 1));
                 schema.Fields.Add(S3Provider.HostServices.CreateNumberFieldDefinition("ETag", "ETag (Media Viersion)", 0, 1));
-                //schema.Fields.Add(S3Provider.HostServices.CreateMultiLineTextFieldDefinition("Description", "Description", 0, 1, 5));
 
                 return schema;
             }
@@ -148,21 +131,13 @@ namespace S3ECLProvider
         public IEclUri ParentId
         {
             get
-            {
-                // return folder uri (S3 photoset)
-                return S3Provider.HostServices.CreateEclUri(Id.PublicationId, Id.MountPointId);
-                //return S3Provider.HostServices.CreateEclUri(
-                //    Id.PublicationId,
-                //    Id.MountPointId,
-                //    Info.MediaUrl.TrimEnd(Id.ItemId.ToCharArray()), //S3.FullBucketUrl,   //"https://s3-us-west-2.amazonaws.com/"+ Info.Bucket +"/", //com-sdldev-tridion-s3ecl-vikas/
-                //    DisplayTypeId,    //set
-                //    EclItemTypes.Folder);
+            {              
+                return S3Provider.HostServices.CreateEclUri(Id.PublicationId, Id.MountPointId);              
             }
         }
 
         public IContentLibraryItem Save(bool readback)
-        {
-            // as saving isn't supported, the result of saving is always the item itself
+        {          
             return readback ? this : null;
         }
     }

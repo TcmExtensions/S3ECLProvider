@@ -12,29 +12,7 @@ using Amazon.S3.IO;
 using System.Security.Cryptography;
 
 namespace S3ECLProvider.api
-{
-    //Basic S3 Media Properties:
-    //Bucket:	com-sdldev-tridion-s3ecl-vikas
-    //Name:	AmazonS3.png
-    //Link:	//This is a public linkhttps://s3-us-west-2.amazonaws.com/com-sdldev-tridion-s3ecl-vikas/AmazonS3.png
-    //Size:	5438
-    //Last Modified:	Fri Feb 17 23:54:02 GMT+530 2017
-    //Owner:	wcms.aws
-    //ETag:	05b771fd98e81e251f8d169885af3191
-    //Expiry Date:	None
-    //Expiration Rule:	N/A
-
-    //MetaData:
-    //Key: Content-Type
-    //value: image/png, video/x-ms-wmv, application/pdf , binary/octet-stream (this is folder)
-
-    //Permission:
-    //Grantee: Open/Download, View permission, Edit permission
-    //Everyone: Open/Download
-
-    //More Info: http://docs.aws.amazon.com/AmazonS3/latest/API/RESTCommonResponseHeaders.html
-
-
+{   
     public class S3Info
     {
         #region basic photo properties
@@ -75,8 +53,7 @@ namespace S3ECLProvider.api
         /// Direct URL to the S3 photo
         /// </summary>
         public string Url { get; set; }
-        //public string UrlThumb { get; set; }
-
+      
         /// <summary>
         /// S3 Photo page url
         /// </summary>
@@ -89,7 +66,6 @@ namespace S3ECLProvider.api
 
         public S3Info(ListObjectsResponse objectResponse)
         {
-            //return objectResponse;
         }
 
         public S3Info()
@@ -98,8 +74,7 @@ namespace S3ECLProvider.api
 
 
         public S3Info(GetObjectResponse objectResponse, string mediaUrl = null)
-        {
-            // set basic properties (for photos and sets)
+        {          
             Bucket = objectResponse.BucketName;
             Name = objectResponse.Key;
             Size = objectResponse.Headers.ContentLength; //in bytes
@@ -113,8 +88,7 @@ namespace S3ECLProvider.api
                 byte[] hash = md5.ComputeHash(Encoding.Default.GetBytes(Name));
                 newGuid = new Guid(hash).ToString("N");
             }
-
-            //implement
+          
             var Status = objectResponse.HttpStatusCode;
             var State = "To be implemented";
 
@@ -122,14 +96,13 @@ namespace S3ECLProvider.api
         }
 
         public S3Info(GetObjectResponse objectResponse, string mediaUrl, string fileType)
-        {
-            // set basic properties (for photos and sets)
+        {          
             Bucket = objectResponse.BucketName;
             Name = objectResponse.Key;
-            Size = objectResponse.Headers.ContentLength; //in bytes
+            Size = objectResponse.Headers.ContentLength;
             ETag = objectResponse.ETag.Split('"')[1];
             LastModified = objectResponse.LastModified;
-            ContentType = fileType;//objectResponse.Headers.ContentType;
+            ContentType = fileType;
             MIMEType = objectResponse.Headers.ContentType;
             MediaUrl = mediaUrl;
             using (MD5 md5 = MD5.Create())
@@ -153,8 +126,7 @@ namespace S3ECLProvider.api
             {
                 byte[] hash = md5.ComputeHash(Encoding.Default.GetBytes(Name));
                 newGuid = new Guid(hash).ToString("N");
-            }
-            //MediaUrl = mediaUrl;
+            }            
             IsFolder = false;
             IsPhoto = false;
             IsVideo = false;
@@ -218,10 +190,5 @@ namespace S3ECLProvider.api
                 newGuid = new Guid(hash).ToString("N");
             }
         }
-
-
-
-
-
     }
 }

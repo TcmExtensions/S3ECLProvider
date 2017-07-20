@@ -9,7 +9,7 @@ using Tridion.ExternalContentLibrary.V2;
 
 namespace S3ECLProvider
 {
-    [AddIn("S3ECLProvider", Version = "1.2.0.4")]   //With Search Implemented
+    [AddIn("S3ECLProvider", Version = "1.2.0.4")] 
     public class S3Provider : IContentLibrary
     {
         private static readonly XNamespace S3Ns = "http://www.sdltridion.com/S3EclProvider/Configuration"; //"http://s3.com/services/api";
@@ -32,8 +32,7 @@ namespace S3ECLProvider
 
         internal static byte[] GetIconImage(string iconIdentifier, int iconSize)
         {
-            int actualSize;
-            // get icon directly from default theme folder
+            int actualSize;           
             return HostServices.GetIcon(IconBasePath, "_Default", iconIdentifier, iconSize, out actualSize);
         }
 
@@ -58,8 +57,7 @@ namespace S3ECLProvider
         public IList<IDisplayType> DisplayTypes
         {
             get
-            {
-                // we currently support S3 (Photo) Sets as folders and S3 Photos in them
+            {               
                 return new List<IDisplayType>
                            {
                                HostServices.CreateDisplayType("fld", "Folder", EclItemTypes.Folder),
@@ -69,8 +67,7 @@ namespace S3ECLProvider
         }
 
         public byte[] GetIconImage(string theme, string iconIdentifier, int iconSize)
-        {
-            // use static implementation
+        {          
             return GetIconImage(iconIdentifier, iconSize);
         }
 

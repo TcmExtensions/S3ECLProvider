@@ -21,8 +21,7 @@ namespace S3ECLProvider.Extensions
             if (attributes != null)
             {
                 localName = localName.ToLowerInvariant();
-
-                // ignoring the namespace will make this easier to use from non xhtml compliant templates
+              
                 return (from att in attributes
                         let attName = att.Name.ToLowerInvariant()
                         where attName == localName || attName.EndsWith(":" + localName)

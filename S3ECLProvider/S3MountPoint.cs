@@ -16,7 +16,7 @@ namespace S3ECLProvider
     {
         internal static List<S3Info> InfoList;
         internal static S3Info Info;
-        public static ITridionUser _tridionUser; //private readonly ITridionUser _tridionUser;
+        public static ITridionUser _tridionUser;
         public static IEclSession _session;
 
         public S3MountPoint(IEclSession session)
@@ -36,16 +36,14 @@ namespace S3ECLProvider
         }
 
         public IList<IContentLibraryListItem> FindItem(IEclUri eclUri)
-        {
-            // return null so we force it to call GetItem(IEclUri)
-
+        {    
             return null;
         }
 
         public IFolderContent GetFolderContent(IEclUri parentFolderUri, int pageIndex, EclItemTypes itemTypes)
         {
-            bool canSearch = false; //CanSearch(parentFolderUri.PublicationId);
-            if (parentFolderUri.ItemId == "root") // With this condition, Search will only work at Root Stub
+            bool canSearch = false;
+            if (parentFolderUri.ItemId == "root") 
             {
                 canSearch = true;
             }
@@ -65,14 +63,12 @@ namespace S3ECLProvider
         {            
             if (eclUri.ItemType == EclItemTypes.File && eclUri.SubType == "fls")
             {
-                return new S3Media(eclUri, S3Provider.S3.GetMediaInfo(eclUri));
-                //return new S3Media(eclUri, Info);
+                return new S3Media(eclUri, S3Provider.S3.GetMediaInfo(eclUri));               
             }
 
             if (eclUri.ItemType == EclItemTypes.Folder && eclUri.SubType == "fld")
             {
-                return new S3Media(eclUri, S3Provider.S3.GetMediaInfo(eclUri));
-                //return new S3Media(eclUri, Info);
+                return new S3Media(eclUri, S3Provider.S3.GetMediaInfo(eclUri));                
             }
 
             throw new NotSupportedException();
@@ -84,14 +80,12 @@ namespace S3ECLProvider
 
 
             IEnumerable<string> uniquePhotoIds = (from uri in eclUris
-                                                      //where uri.ItemType == EclItemTypes.File && (uri.SubType == "fls" || uri.SubType == "img" || uri.SubType == "vid" || uri.SubType == "pdf")
                                                   where uri.ItemType == EclItemTypes.File && (uri.SubType == "fls")
                                                   select uri.ItemId).Distinct();
             foreach (string id in uniquePhotoIds)
             {
                 string itemId = id;
                 var urisForPhoto = from uri in eclUris
-                                       //where uri.ItemType == EclItemTypes.File && (uri.SubType == "fls" || uri.SubType == "img" || uri.SubType == "vid" || uri.SubType == "pdf") && uri.ItemId == itemId
                                    where uri.ItemType == EclItemTypes.File && (uri.SubType == "fls") && uri.ItemId == itemId
                                    select uri;
 
@@ -107,15 +101,12 @@ namespace S3ECLProvider
         {
             if (eclUri.ItemType == EclItemTypes.File && (eclUri.SubType == "fls"))
             {
-                WebClient webClient = new WebClient();
-                //S3Info photoUrl = S3Provider.S3.GetMediaInfo(eclUri.ItemId);
+                WebClient webClient = new WebClient();               
                 string photoUrl = S3Provider.S3.GetMediaUrl(eclUri.ItemId);
                 byte[] thumbnailDataIs = null;
                 try
-                {                    
-                    //thumbnailDataIs = webClient.DownloadData(photoUrl.MediaUrl);
-                    thumbnailDataIs = webClient.DownloadData(photoUrl);
-                    //thumbnailDataIs = webClient.DownloadData(S3.mediaUrlForThumbnail);
+                { 
+                    thumbnailDataIs = webClient.DownloadData(photoUrl);                  
                     using (MemoryStream ms = new MemoryStream(thumbnailDataIs, false))
                     {
                         return S3Provider.HostServices.CreateThumbnailImage(maxWidth, maxHeight, ms, null);
@@ -127,7 +118,6 @@ namespace S3ECLProvider
                 }
                 catch (Exception)
                 {
-                    //throw new NotSupportedException();
                     return null;
                 }
             }
@@ -166,9 +156,6 @@ namespace S3ECLProvider
             if(searchTerm != null)
             {
                 List<IContentLibraryListItem> items = new List<IContentLibraryListItem>();
-
-                //Use SearchInS3Folders() method when only want to search in specific Folder
-                //Use SearchInS3() method when searchin in whole S3, Could be slow based on items in S3.
                 InfoList = S3Provider.S3.SearchInS3(contextUri, contextUri.ItemType, searchTerm); 
                 foreach (S3Info info in InfoList)
                 {
@@ -178,8 +165,7 @@ namespace S3ECLProvider
                 return S3Provider.HostServices.CreateFolderContent(contextUri, items, CanGetUploadMultimediaItemsUrl(contextUri.PublicationId), true);
             }
 
-            throw new NotSupportedException();
-            //throw new InvalidOperationException("Enter search term..");
+            throw new NotSupportedException();         
         }
 
         public string Dispatch(string command, string payloadVersion, string payload, out string responseVersion)

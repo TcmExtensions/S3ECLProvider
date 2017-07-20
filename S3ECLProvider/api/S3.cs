@@ -52,7 +52,7 @@ namespace S3ECLProvider.api
             S3FileInfo mediaInfo = new S3FileInfo(s3Client, BucketName, mediaKey);
             if (mediaInfo.Exists)
             {
-                var mediaUrl = FullBucketUrl + mediaKey; //DefaultUrl + BucketName + "/" + mediaKey;
+                var mediaUrl = FullBucketUrl + mediaKey;
                 mediaUrlForThumbnail = mediaUrl;
 
                 if (mediaUrl.Contains("%"))
@@ -82,23 +82,13 @@ namespace S3ECLProvider.api
             {
                 s3Obj = s3Client.GetObject(request);
                 var mediaUrl = GetMediaUrl(mediaKey);
-                //s3List.Add(new S3Info(objectDirResponse, itemUrl, "Folder"));
+              
                 S3Info s3Info = new S3Info(s3Obj, mediaUrl, eclUri.ItemType.ToString());
-
-                //mediaUrl = GetMediaUrl(mediaKey);
-                //S3Info s3Info = new S3Info(s3Obj, mediaUrl);
-
                 return s3Info;
             }
             catch (KeyNotFoundException)
             {
-                throw new KeyNotFoundException();
-                //mediaKey = mediaKey + "/";
-                //s3Obj = s3Client.GetObject(request);
-                //mediaUrl = GetMediaUrl(eclUri.ItemId);
-
-                //S3Info s3Info = new S3Info(s3Obj, mediaUrl);
-                //return s3Info;
+                throw new KeyNotFoundException();               
             }
             catch (Exception ex)
             {
@@ -111,9 +101,7 @@ namespace S3ECLProvider.api
         {
             List<S3Info> s3SearchList = new List<S3Info>();
             ListObjectsRequest objRequest = new ListObjectsRequest();
-            objRequest.BucketName = BucketName;
-            //objRequest.Delimiter = "/";
-            //objRequest.Prefix = searchTerm;
+            objRequest.BucketName = BucketName;           
             var ItemTypes = "";
             var returnedKey = "";
             //TODO: This pick all objects/items from s3 to search, where we should target to get object based on folder we are in
@@ -149,9 +137,7 @@ namespace S3ECLProvider.api
         public List<S3Info> SearchInS3Folders(IEclUri parentFolderUri, EclItemTypes itemTypes, string searchTerm = null)
         {
             List<S3Info> s3SearchList = new List<S3Info>();
-            S3DirectoryInfo s3Root = null;
-            //var ItemTypes = "";
-            //var returnedKey = "";
+            S3DirectoryInfo s3Root = null;        
             if (parentFolderUri.ItemId == "root")
             {
                 s3Root = new S3DirectoryInfo(s3Client, BucketName);
@@ -163,10 +149,7 @@ namespace S3ECLProvider.api
 
             //Search Folder
             foreach (var subdirectories in s3Root.GetDirectories())
-            {
-                //var nameArray = subdirectories.Name.Split('/');
-                //int count = nameArray.Length;
-                //returnedKey = subdirectories.Name;//nameArray[count - 2].TrimEnd('/');
+            {             
                 if (subdirectories.Name.Contains(searchTerm))
                 {
                     var item = subdirectories.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
@@ -199,8 +182,7 @@ namespace S3ECLProvider.api
                 s3Root = new S3DirectoryInfo(s3Client, BucketName);
             }
             else
-            {
-                //{com-sdldev-tridion-s3ecl-vikas:\Home\} {com-sdldev-tridion-s3ecl-vikas:\Holi\}
+            {              
                 s3Root = new S3DirectoryInfo(s3Client, BucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
             }
 
@@ -260,8 +242,7 @@ namespace S3ECLProvider.api
             else
             {
                 throw new NotSupportedException();
-            }
-            //return s3List;
+            }          
             return myList;
         }
         public static string GetPhotoUrl(S3Info photo, PhotoSizeEnum size)

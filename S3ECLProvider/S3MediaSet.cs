@@ -60,14 +60,12 @@ namespace S3ECLProvider
         {
             get
             {
-                // return mountpoint uri (we only have folders in the top level)
                 return S3Provider.HostServices.CreateEclUri(Id.PublicationId, Id.MountPointId);
             }
         }
 
         public IContentLibraryItem Save(bool readback)
         {
-            // as saving isn't supported, the result of saving is always the item itself
             return readback ? this : null;
         }
     }

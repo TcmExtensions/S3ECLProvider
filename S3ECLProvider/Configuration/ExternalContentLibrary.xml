@@ -20,10 +20,3 @@
     </MountPoint>
   </MountPoints>
 </Configuration>
-
-<!--<?xml version="1.0"//     encoding="utf-8" ?> 
-  <configuration>
-  <appSettings>
-    <add key="AWSProfileName" value="AWS//Default"/>
-  </appSettings>
-</configuration>-->

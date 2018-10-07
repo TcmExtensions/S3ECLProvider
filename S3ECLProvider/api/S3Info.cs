@@ -64,37 +64,6 @@ namespace S3ECLProvider.api
         /// </summary>
         #endregion
 
-        public S3Info(ListObjectsResponse objectResponse)
-        {
-        }
-
-        public S3Info()
-        {
-        }
-
-
-        public S3Info(GetObjectResponse objectResponse, string mediaUrl = null)
-        {          
-            Bucket = objectResponse.BucketName;
-            Name = objectResponse.Key;
-            Size = objectResponse.Headers.ContentLength; //in bytes
-            ETag = objectResponse.ETag.Split('"')[1];
-            LastModified = objectResponse.LastModified;
-            ContentType = objectResponse.Headers.ContentType;
-            MIMEType = objectResponse.Headers.ContentType;
-            MediaUrl = mediaUrl;
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] hash = md5.ComputeHash(Encoding.Default.GetBytes(Name));
-                newGuid = new Guid(hash).ToString("N");
-            }
-          
-            var Status = objectResponse.HttpStatusCode;
-            var State = "To be implemented";
-
-            State = objectResponse.Headers.GetType().IsPublic.ToString();
-        }
-
         public S3Info(GetObjectResponse objectResponse, string mediaUrl, string fileType)
         {          
             Bucket = objectResponse.BucketName;
@@ -111,29 +80,6 @@ namespace S3ECLProvider.api
                 newGuid = new Guid(hash).ToString("N");
             }
         }
-
-        public S3Info(S3Object s3Object)
-        {
-            Bucket = s3Object.BucketName;
-            Name = s3Object.Key;
-            Size = s3Object.Size;
-            ETag = s3Object.ETag.Split('"')[1];
-            LastModified = s3Object.LastModified;
-            Owner = s3Object.Owner;
-            ContentType = null;
-            MIMEType = "NA";
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] hash = md5.ComputeHash(Encoding.Default.GetBytes(Name));
-                newGuid = new Guid(hash).ToString("N");
-            }            
-            IsFolder = false;
-            IsPhoto = false;
-            IsVideo = false;
-            IsPdf = false;
-            IsOther = false;
-        }
-
 
         //Below model is only for search.
         public S3Info(S3Object s3Object, string mediaUrl, string fileType)
@@ -161,13 +107,12 @@ namespace S3ECLProvider.api
 
         }
 
-
-        public S3Info(S3DirectoryInfo itemInfo, string mediaUrl, string fileType)
+        public S3Info(S3DirectoryInfo itemInfo, string bucketUrl)
         {
             Bucket = itemInfo.Bucket.Name;
-            Name = itemInfo.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-            MediaUrl = mediaUrl;
-            ContentType = fileType;
+            Name = itemInfo.FullName.Substring(Bucket.Length + 2).Replace('\\', '/');
+            MediaUrl = bucketUrl + Name;
+            ContentType = "Folder";
             LastModified = itemInfo.LastWriteTimeUtc;
             using (MD5 md5 = MD5.Create())
             {
@@ -176,12 +121,12 @@ namespace S3ECLProvider.api
             }
         }
 
-        public S3Info(S3FileInfo itemInfo, string mediaUrl, string fileType)
+        public S3Info(S3FileInfo itemInfo, string bucketUrl)
         {
             Bucket = itemInfo.Directory.Bucket.Name;
-            Name = itemInfo.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/'); ;
-            MediaUrl = mediaUrl;
-            ContentType = fileType;
+            Name = itemInfo.FullName.Substring(Bucket.Length + 2).Replace('\\', '/');
+            MediaUrl = bucketUrl + Name;
+            ContentType = "File";
             LastModified = itemInfo.LastWriteTimeUtc;
             Size = itemInfo.Length;
             using (MD5 md5 = MD5.Create())

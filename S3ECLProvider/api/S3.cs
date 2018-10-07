@@ -3,6 +3,7 @@ using Amazon.S3.IO;
 using Amazon.S3.Model;
 using S3ECLProvider.Extensions;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Tridion.ExternalContentLibrary.V2;
 
@@ -72,6 +73,7 @@ namespace S3ECLProvider.api
                 BucketName = _bucketName,
                 Key = eclUri.ItemId,
             };
+
             try
             {
                 s3Obj = _S3Client.GetObject(request);
@@ -141,6 +143,7 @@ namespace S3ECLProvider.api
                 s3Root = new S3DirectoryInfo(_S3Client, _bucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
             }
 
+            /*
             //Search Folder
             foreach (var subdirectories in s3Root.GetDirectories())
             {             
@@ -162,6 +165,7 @@ namespace S3ECLProvider.api
                     s3SearchList.Add(new S3Info(file, itemUrl, "File"));
                 }
             }
+            */
             return s3SearchList;
         }
 
@@ -180,8 +184,7 @@ namespace S3ECLProvider.api
                 s3Root = new S3DirectoryInfo(_S3Client, _bucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
             }
 
-
-
+            /*
             if (parentFolderUri.ItemType == EclItemTypes.MountPoint && itemTypes.HasFlag(EclItemTypes.Folder) && !itemTypes.HasFlag(EclItemTypes.File))
             {
                 foreach (var subdirectories in s3Root.GetDirectories())
@@ -191,29 +194,17 @@ namespace S3ECLProvider.api
                     myList.Add(new S3Info(subdirectories, itemUrl, "Folder"));
                 }
             }
+            else */
 
-
-            else if (itemTypes.HasFlag(EclItemTypes.File) && itemTypes.HasFlag(EclItemTypes.Folder))
+            if (itemTypes.HasFlag(EclItemTypes.File) && itemTypes.HasFlag(EclItemTypes.Folder))
             {
-                foreach (var subdirectories in s3Root.GetDirectories())
-                {
-                    var item = subdirectories.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-                    var itemUrl = FullBucketUrl + item;
-                    myList.Add(new S3Info(subdirectories, itemUrl, "Folder"));
-                }
-                foreach (var file in s3Root.GetFiles())
-                {
-                    var item = file.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-                    var itemUrl = FullBucketUrl + item;
-                    myList.Add(new S3Info(file, itemUrl, "File"));
-                }
-
+                myList.AddRange(s3Root.GetDirectories().Select(d => new S3Info(d, FullBucketUrl)));
+                myList.AddRange(s3Root.GetFiles().Select(f => new S3Info(f, FullBucketUrl)));
             }
-
-
-
+            /*
             else if (itemTypes.HasFlag(EclItemTypes.Folder))
             {
+
                 foreach (var subdirectories in s3Root.GetDirectories())
                 {
                     var item = subdirectories.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
@@ -221,18 +212,19 @@ namespace S3ECLProvider.api
                     myList.Add(new S3Info(subdirectories, itemUrl, "Folder"));
                 }
             }
-
-
+            */
+            /*
             else if (itemTypes.HasFlag(EclItemTypes.File))
             {
+
                 foreach (var file in s3Root.GetFiles())
                 {
                     var item = file.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
                     var itemUrl = FullBucketUrl + item;
                     myList.Add(new S3Info(file, itemUrl, "File"));
                 }
-
             }
+            */
             else
             {
                 throw new NotSupportedException();

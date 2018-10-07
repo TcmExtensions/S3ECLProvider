@@ -71,6 +71,7 @@
     <Compile Include="api\PhotoSizeEnum.cs" />
     <Compile Include="api\S3.cs" />
     <Compile Include="api\S3Info.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\LinqXmlExtensions.cs" />

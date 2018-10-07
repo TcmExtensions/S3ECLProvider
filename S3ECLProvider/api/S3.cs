@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.IO;
 using Amazon.S3.Model;
 using S3ECLProvider.Extensions;
+using System;
+using System.Collections.Generic;
 using Tridion.ExternalContentLibrary.V2;
 
 namespace S3ECLProvider.api

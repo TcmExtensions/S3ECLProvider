@@ -62,10 +62,10 @@ namespace S3ECLProvider
             get
             {               
                 return new List<IDisplayType>
-                           {
-                               HostServices.CreateDisplayType("fld", "Folder", EclItemTypes.Folder),
-                               HostServices.CreateDisplayType("fls", "File", EclItemTypes.File)                              
-                            };
+                {
+                    HostServices.CreateDisplayType(Constants.S3_FOLDER_ID, "Folder", EclItemTypes.Folder),
+                    HostServices.CreateDisplayType(Constants.S3_FILE_ID, "File", EclItemTypes.File)                              
+                };
             }
         }
 

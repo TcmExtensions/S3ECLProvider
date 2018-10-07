@@ -71,11 +71,11 @@ namespace S3ECLProvider
             {
                 if(Info.ContentType == "Folder")
                 {
-                    return "fld";
+                    return Constants.S3_FOLDER_ID;
                 }
                 else
                 {
-                    return "fls";
+                    return Constants.S3_FILE_ID;
                 }             
             }
         }

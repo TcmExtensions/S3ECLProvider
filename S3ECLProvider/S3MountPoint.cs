@@ -57,12 +57,12 @@ namespace S3ECLProvider
 
         public IContentLibraryItem GetItem(IEclUri eclUri)
         {            
-            if (eclUri.ItemType == EclItemTypes.File && eclUri.SubType == "fls")
+            if (eclUri.ItemType == EclItemTypes.File && eclUri.SubType == Constants.S3_FILE_ID)
             {
                 return new S3Media(eclUri, S3Provider.S3.GetMediaInfo(eclUri));               
             }
 
-            if (eclUri.ItemType == EclItemTypes.Folder && eclUri.SubType == "fld")
+            if (eclUri.ItemType == EclItemTypes.Folder && eclUri.SubType == Constants.S3_FOLDER_ID)
             {
                 return new S3Media(eclUri, S3Provider.S3.GetMediaInfo(eclUri));                
             }
@@ -76,13 +76,13 @@ namespace S3ECLProvider
 
 
             IEnumerable<string> uniquePhotoIds = (from uri in eclUris
-                                                  where uri.ItemType == EclItemTypes.File && (uri.SubType == "fls")
+                                                  where uri.ItemType == EclItemTypes.File && (uri.SubType == Constants.S3_FILE_ID)
                                                   select uri.ItemId).Distinct();
             foreach (string id in uniquePhotoIds)
             {
                 string itemId = id;
                 var urisForPhoto = from uri in eclUris
-                                   where uri.ItemType == EclItemTypes.File && (uri.SubType == "fls") && uri.ItemId == itemId
+                                   where uri.ItemType == EclItemTypes.File && (uri.SubType == Constants.S3_FILE_ID) && uri.ItemId == itemId
                                    select uri;
 
                 foreach (IEclUri eclUri in urisForPhoto)
@@ -95,7 +95,7 @@ namespace S3ECLProvider
 
         public byte[] GetThumbnailImage(IEclUri eclUri, int maxWidth, int maxHeight)
         {
-            if (eclUri.ItemType == EclItemTypes.File && (eclUri.SubType == "fls"))
+            if (eclUri.ItemType == EclItemTypes.File && (eclUri.SubType == Constants.S3_FILE_ID))
             {
                 WebClient webClient = new WebClient();               
                 string photoUrl = S3Provider.S3.GetMediaUrl(eclUri.ItemId);
@@ -128,7 +128,7 @@ namespace S3ECLProvider
                 return Info.MediaUrl;
             }
 
-            if (parentFolderUri.ItemType == EclItemTypes.Folder && parentFolderUri.SubType == "fld")
+            if (parentFolderUri.ItemType == EclItemTypes.Folder && parentFolderUri.SubType == Constants.S3_FOLDER_ID)
             {
                 return Info.MediaUrl; 
             }

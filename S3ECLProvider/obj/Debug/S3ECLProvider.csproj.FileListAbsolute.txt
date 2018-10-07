@@ -1,9 +1,0 @@
-C:\ProgramData\SDL\SDL Tridion\External Content Library\AddInPipeline\AddIns\S3ECLProvider\Themes\_Default\Icons\S3.16x16.png
-C:\ProgramData\SDL\SDL Tridion\External Content Library\AddInPipeline\AddIns\S3ECLProvider\Themes\_Default\Icons\S3.24x24.png
-C:\ProgramData\SDL\SDL Tridion\External Content Library\AddInPipeline\AddIns\S3ECLProvider\Themes\_Default\Icons\S3.32x32.png
-C:\ProgramData\SDL\SDL Tridion\External Content Library\AddInPipeline\AddIns\S3ECLProvider\Themes\_Default\Icons\S3.48x48.png
-C:\ProgramData\SDL\SDL Tridion\External Content Library\AddInPipeline\AddIns\S3ECLProvider\S3ECLProvider.dll.config
-C:\ProgramData\SDL\SDL Tridion\External Content Library\AddInPipeline\AddIns\S3ECLProvider\S3ECLProvider.dll
-C:\ProgramData\SDL\SDL Tridion\External Content Library\AddInPipeline\AddIns\S3ECLProvider\S3ECLProvider.pdb
-C:\Vikas Kumar\Office\SDL\SDL D Drive\2 Development\ECL to S3 bucket - Feasibility - SSS-109\S3ECLProvider-v1.2.0.4 - With Search\S3ECLProvider-v1.2.0.4 - With Search\S3ECLProvider\obj\Debug\S3ECLProvider.dll
-C:\Vikas Kumar\Office\SDL\SDL D Drive\2 Development\ECL to S3 bucket - Feasibility - SSS-109\S3ECLProvider-v1.2.0.4 - With Search\S3ECLProvider-v1.2.0.4 - With Search\S3ECLProvider\obj\Debug\S3ECLProvider.pdb

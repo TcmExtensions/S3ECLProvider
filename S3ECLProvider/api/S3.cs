@@ -10,46 +10,40 @@ namespace S3ECLProvider.api
 {
     class S3
     {
-        private const string DefaultUrl = "https://s3-us-west-2.amazonaws.com/";
-        private static IAmazonS3 s3Client;
+        private static IAmazonS3 _S3Client;
+        private static string _bucketName;
+
         public const int MaxWidth = 3840;
         public const int MaxHeight = 2160;
 
-        private const string NamespaceUri = "http://s3.com/services/api";
-        private const string RootElementName = "Metadata";
-
         #region properties
-        public static string BucketName { get; set; }
-        public static string FullBucketUrl { get; set; }
+        public static string FullBucketUrl { get; private set; }
 
         public static string mediaUrlForThumbnail { get; set; }
-        public string SecretKey { get; }
-        public string AccessId { get; }
         #endregion
 
         #region constructors
-        public S3(string bucketName, string secretKey, string accessId, string fullBucketUrl)
+        public S3(string region, string bucketName, string accessId, string secretKey, string fullBucketUrl)
         {
-            BucketName = bucketName;
-            SecretKey = secretKey;
-            AccessId = accessId;
-
+            _bucketName = bucketName;
             FullBucketUrl = fullBucketUrl;
-            s3Client = new AmazonS3Client(AccessId, SecretKey);
-        }
 
+            Amazon.RegionEndpoint regionEndpoint = Amazon.RegionEndpoint.GetBySystemName(region);
 
-        public S3(string secretKey, string accessId)
-              : this(BucketName, secretKey, accessId, FullBucketUrl)
-        {
+            if (regionEndpoint == null)
+                throw new ArgumentException(String.Format("Unknown S3 region: \"{0}\".", region), "region");
+
+            _S3Client = new AmazonS3Client(accessId, secretKey, regionEndpoint);
+
+            if (!_S3Client.DoesS3BucketExist(bucketName))
+                throw new ArgumentException(String.Format("S3 bucket \"{0}\" does not exist or is not accessible.", bucketName), "bucketName");
         }
         #endregion
 
-        public S3()
-        { }
         public string GetMediaUrl(string mediaKey)
         {
-            S3FileInfo mediaInfo = new S3FileInfo(s3Client, BucketName, mediaKey);
+            S3FileInfo mediaInfo = new S3FileInfo(_S3Client, _bucketName, mediaKey);
+
             if (mediaInfo.Exists)
             {
                 var mediaUrl = FullBucketUrl + mediaKey;
@@ -75,12 +69,12 @@ namespace S3ECLProvider.api
             var mediaKey = eclUri.ItemId;
             GetObjectRequest request = new GetObjectRequest
             {
-                BucketName = BucketName,
+                BucketName = _bucketName,
                 Key = eclUri.ItemId,
             };
             try
             {
-                s3Obj = s3Client.GetObject(request);
+                s3Obj = _S3Client.GetObject(request);
                 var mediaUrl = GetMediaUrl(mediaKey);
               
                 S3Info s3Info = new S3Info(s3Obj, mediaUrl, eclUri.ItemType.ToString());
@@ -101,11 +95,11 @@ namespace S3ECLProvider.api
         {
             List<S3Info> s3SearchList = new List<S3Info>();
             ListObjectsRequest objRequest = new ListObjectsRequest();
-            objRequest.BucketName = BucketName;           
+            objRequest.BucketName = _bucketName;           
             var ItemTypes = "";
             var returnedKey = "";
             //TODO: This pick all objects/items from s3 to search, where we should target to get object based on folder we are in
-            ListObjectsResponse objResponse = s3Client.ListObjects(objRequest);            
+            ListObjectsResponse objResponse = _S3Client.ListObjects(objRequest);            
             foreach (S3Object obS3Object in objResponse.S3Objects)
             {
                 if (obS3Object.Size == 0)
@@ -140,11 +134,11 @@ namespace S3ECLProvider.api
             S3DirectoryInfo s3Root = null;        
             if (parentFolderUri.ItemId == "root")
             {
-                s3Root = new S3DirectoryInfo(s3Client, BucketName);
+                s3Root = new S3DirectoryInfo(_S3Client, _bucketName);
             }
             else
             {
-                s3Root = new S3DirectoryInfo(s3Client, BucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
+                s3Root = new S3DirectoryInfo(_S3Client, _bucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
             }
 
             //Search Folder
@@ -176,14 +170,14 @@ namespace S3ECLProvider.api
             List<S3Info> s3List = new List<S3Info>();
             List<S3Info> myList = new List<S3Info>();
             S3DirectoryInfo s3Root = null;
-            GetObjectRequest getDirObjectRequest = null;
+
             if (parentFolderUri.ItemId == "root")
             {
-                s3Root = new S3DirectoryInfo(s3Client, BucketName);
+                s3Root = new S3DirectoryInfo(_S3Client, _bucketName);
             }
             else
             {              
-                s3Root = new S3DirectoryInfo(s3Client, BucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
+                s3Root = new S3DirectoryInfo(_S3Client, _bucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
             }
 
 

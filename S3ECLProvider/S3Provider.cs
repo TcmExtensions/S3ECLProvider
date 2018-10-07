@@ -40,13 +40,16 @@ namespace S3ECLProvider
         {
             MountPointId = mountPointId;
             HostServices = hostServices;
+
             XElement config = XElement.Parse(configurationXmlElement);
+
             S3 = new S3(
+                config.Element(S3Ns + "S3Region").Value,
                 config.Element(S3Ns + "S3BucketName").Value,
-                config.Element(S3Ns + "S3SecretKey").Value,
                 config.Element(S3Ns + "S3AccessId").Value,
-                config.Element(S3Ns + "FullBucketUrl").Value
-                );
+                config.Element(S3Ns + "S3SecretKey").Value,
+                config.Element(S3Ns + "FullBucketUrl").Value                
+            );
         }
 
         public IContentLibraryContext CreateContext(IEclSession eclSession)

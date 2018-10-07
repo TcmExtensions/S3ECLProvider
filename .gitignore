@@ -1,0 +1,6 @@
+/.vs
+/S3ECLProvider/obj
+/S3ECLProvider/bin
+/packages
+/dependencies/*.dll
+/dependencies/*.xml

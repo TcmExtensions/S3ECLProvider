@@ -10,10 +10,13 @@
       </StubFolders>
       <PrivilegedUserName>WIN-PKT1MENDBR7\Administrator</PrivilegedUserName>      
       <EnableUpload administrators="true"/>
-      <FullBucketUrl xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">full bucket Url with / at the end</FullBucketUrl>
+      
       <S3BucketName xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">bucket name, no /</S3BucketName>
       <S3AccessId xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">access id</S3AccessId>
       <S3SecretKey xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">secret key</S3SecretKey>
+      <S3Region xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">S3 region, as per Amazon.RegionEndpoint enum</S3Region>
+
+      <FullBucketUrl xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">full bucket Url with / at the end</FullBucketUrl>
       <ECLCoreServiceUrl xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">netTcp endpoint</ECLCoreServiceUrl>
     </MountPoint>
   </MountPoints>

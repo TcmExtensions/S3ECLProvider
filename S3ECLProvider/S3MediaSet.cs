@@ -37,7 +37,10 @@ namespace S3ECLProvider
 
         public string CreatedBy
         {
-            get { return S3Provider.S3.AccessId; }
+            get {
+                // TODO: Obtain creator ID from file listing
+                return "Unknown";
+            }
         }
 
         public string MetadataXml

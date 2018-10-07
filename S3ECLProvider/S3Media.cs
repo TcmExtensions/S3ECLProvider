@@ -8,7 +8,6 @@ using S3ECLProvider.api;
 using S3ECLProvider.Extensions;
 using Tridion.ExternalContentLibrary.V2;
 using System.Xml.Linq;
-using HtmlAgilityPack;
 
 namespace S3ECLProvider
 {
@@ -91,7 +90,10 @@ namespace S3ECLProvider
 
         public string CreatedBy
         {
-            get { return S3Provider.S3.AccessId; }
+            get {
+                // TODO: Obtain creator ID from file listing
+                return "Unknown";
+            }
         }
 
 

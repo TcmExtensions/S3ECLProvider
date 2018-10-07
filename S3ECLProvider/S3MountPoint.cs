@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using S3ECLProvider.api;
 using Tridion.ExternalContentLibrary.V2;
-using Tridion.ContentManager.CoreService.Client;
-using System.ServiceModel;
-using System.Security.Cryptography;
 
 namespace S3ECLProvider
 {

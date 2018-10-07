@@ -3,6 +3,7 @@ using System.AddIn;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Web;
 using System.Xml.Linq;
 using S3ECLProvider.api;
 using Tridion.ExternalContentLibrary.V2;
@@ -45,10 +46,10 @@ namespace S3ECLProvider
 
             S3 = new S3(
                 config.Element(S3Ns + "S3Region").Value,
-                config.Element(S3Ns + "S3BucketName").Value,
+                VirtualPathUtility.RemoveTrailingSlash(config.Element(S3Ns + "S3BucketName").Value),
                 config.Element(S3Ns + "S3AccessId").Value,
                 config.Element(S3Ns + "S3SecretKey").Value,
-                config.Element(S3Ns + "FullBucketUrl").Value                
+                VirtualPathUtility.AppendTrailingSlash(config.Element(S3Ns + "FullBucketUrl").Value)
             );
         }
 

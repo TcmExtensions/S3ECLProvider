@@ -27,6 +27,7 @@ namespace S3ECLProvider.Extensions
                         where attName == localName || attName.EndsWith(":" + localName)
                         select att.Value).FirstOrDefault();
             }
+
             return string.Empty;
         }
 
@@ -44,8 +45,10 @@ namespace S3ECLProvider.Extensions
                                                        let value = attributes.Attribute(supportedAttributeName)
                                                        where !string.IsNullOrWhiteSpace(value)
                                                        select string.Format("{0}=\"{1}\"", supportedAttributeName, HttpUtility.HtmlEncode(value));
+
                 return string.Join(" ", attributeStrings);
             }
+
             return string.Empty;
         }
     }

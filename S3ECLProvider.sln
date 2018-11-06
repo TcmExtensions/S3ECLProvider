@@ -1,9 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S3ECLProvider", "S3ECLProvider\S3ECLProvider.csproj", "{5B608DD1-003F-4C0E-B4FE-ADDDA8A76660}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "S3ECLProvider", "..\..\..\Program Files (x86)\Tridion\web\WebUI\Editors\ExternalContentLibrary\S3ECLProvider\", "{26B1987C-1301-428D-9AB2-8625C051E344}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_52730"
+		Debug.AspNetCompiler.PhysicalPath = "..\..\..\Program Files (x86)\Tridion\web\WebUI\Editors\ExternalContentLibrary\S3ECLProvider\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52730\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_52730"
+		Release.AspNetCompiler.PhysicalPath = "..\..\..\Program Files (x86)\Tridion\web\WebUI\Editors\ExternalContentLibrary\S3ECLProvider\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52730\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "52730"
+		SlnRelativePath = "..\..\..\Program Files (x86)\Tridion\web\WebUI\Editors\ExternalContentLibrary\S3ECLProvider\"
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +36,15 @@ Global
 		{5B608DD1-003F-4C0E-B4FE-ADDDA8A76660}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B608DD1-003F-4C0E-B4FE-ADDDA8A76660}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B608DD1-003F-4C0E-B4FE-ADDDA8A76660}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26B1987C-1301-428D-9AB2-8625C051E344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26B1987C-1301-428D-9AB2-8625C051E344}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26B1987C-1301-428D-9AB2-8625C051E344}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{26B1987C-1301-428D-9AB2-8625C051E344}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {80871094-65FD-4F27-833B-82335E3933E8}
 	EndGlobalSection
 EndGlobal

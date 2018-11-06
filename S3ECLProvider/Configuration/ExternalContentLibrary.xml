@@ -4,20 +4,30 @@
   </l:Logging>
   <CoreServiceUrl>net.tcp://localhost:2660/CoreService/2011/netTcp</CoreServiceUrl>
   <MountPoints>
+    <!-- type="S3ECLProvider" : Matches [AddIn("S3ECLProvider", Version = "1.0.0.0")] in your Provider Code -->
+    <!-- id="s3" : MountPointId, Hover mouse on the Mountpoint in CME - ecl:2-s3-root-mp-mountpoint -->
+    <!-- rootItemName="AWS S3 Bucket" : Display name of MountPoint in CME -->
     <MountPoint type="S3ECLProvider" version="*" id="s3" rootItemName="AWS S3 Bucket">
+      <!-- StubFolder: Folder your choice in CME in Parent Publication -->
       <StubFolders>
-        <StubFolder id="tcm:2-84-2" />        
+        <StubFolder id="tcm:2-84-2" /> <!-- Folder tcmId from your CME -->        
       </StubFolders>
-      <PrivilegedUserName>WIN-PKT1MENDBR7\Administrator</PrivilegedUserName>      
-      <EnableUpload administrators="true"/>
-      
-      <S3BucketName xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">bucket name, no /</S3BucketName>
-      <S3AccessId xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">access id</S3AccessId>
-      <S3SecretKey xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">secret key</S3SecretKey>
-      <S3Region xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">S3 region, as per Amazon.RegionEndpoint enum</S3Region>
 
-      <FullBucketUrl xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">full bucket Url with / at the end</FullBucketUrl>
-      <ECLCoreServiceUrl xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">netTcp endpoint</ECLCoreServiceUrl>
+      <!-- PrivilegedUserName: This is often system users (MTSUser or Administrator) -->
+      <PrivilegedUserName>WIN-PKT1MENDBR7\MTSUser</PrivilegedUserName>
+
+      <S3ECLProvider xmlns="http://www.sdltridion.com/S3EclProvider/Configuration">
+        <BucketName>AWS S3 bucket name, without trailing /</BucketName>
+        <AccessKeyId>AWS S3 access key id</AccessKeyId>
+        <SecretAccessKey>AWS S3 secret access key</SecretAccessKey>
+        <Region>AWS S3 region, as per Amazon.RegionEndpoint enum</Region>
+        <Prefix>AWS S3 bucket prefix, limit interaction to files with this prefix only</Prefix>
+        <AccessControlList>Default access control to apply to new uploads</AccessControlList>
+        <CacheControl>HTTP Cache-Control header to apply to all uploads</CacheControl>
+        <BucketUrl>AWS full bucket URL with / as a suffix</BucketUrl>
+        <CacheTime>Number of seconds for which to cache AWS S3 items in the CME</CacheTime>
+      </S3ECLProvider>
+
     </MountPoint>
   </MountPoints>
 </Configuration>

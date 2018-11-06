@@ -1,288 +1,210 @@
-﻿using Amazon.S3;
-using Amazon.S3.IO;
-using Amazon.S3.Model;
-using S3ECLProvider.Extensions;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using Tridion.ExternalContentLibrary.V2;
+using System.Linq;
+using System.Web;
+using Amazon.S3;
+using Amazon.S3.Model;
 
-namespace S3ECLProvider.api
+namespace S3ECLProvider.API
 {
-    class S3
+    internal class S3
     {
-        private static IAmazonS3 _S3Client;
-        private static string _bucketName;
+        private readonly IAmazonS3 _S3Client;
+        private readonly String _bucketName;
+        private readonly String _bucketUrl;
+        private readonly String _prefix;
 
-        public const int MaxWidth = 3840;
-        public const int MaxHeight = 2160;
-
-        #region properties
-        public static string FullBucketUrl { get; private set; }
-
-        public static string mediaUrlForThumbnail { get; set; }
-        #endregion
-
-        #region constructors
-        public S3(string region, string bucketName, string accessId, string secretKey, string fullBucketUrl)
+        private String GetFullPrefix(String prefix)
         {
+            if (!prefix.StartsWith(_prefix))
+                return _prefix + prefix;
+            else
+                return prefix;
+        }
+
+        private String StripPrefix(String key)
+        {
+            if (!String.IsNullOrEmpty(_prefix))
+                return key.Substring(_prefix.Length);
+            else
+                return key;
+        }
+
+        #region Constructors
+        internal S3(string region, string bucketName, string accessKeyId, string secretAccessKey, string bucketUrl, string prefix)
+        {
+            if (String.IsNullOrEmpty(region))
+                throw new ArgumentNullException("S3 Region not specified.");
+
+            if (String.IsNullOrEmpty(bucketName))
+                throw new ArgumentNullException("S3 BucketName not specified.");
+
+            if (String.IsNullOrEmpty(accessKeyId))
+                throw new ArgumentNullException("S3 AccessKeyId not specified.");
+
+            if (String.IsNullOrEmpty(secretAccessKey))
+                throw new ArgumentNullException("S3 SecretAccessKey not specified.");
+
+            if (String.IsNullOrEmpty(bucketUrl))
+                throw new ArgumentNullException("S3 BucketUrl not specified.");
+
             _bucketName = bucketName;
-            FullBucketUrl = fullBucketUrl;
+            _bucketUrl = bucketUrl;
+
+            if (!String.IsNullOrEmpty(prefix))
+                _prefix = prefix;
+            else
+                _prefix = String.Empty;
 
             Amazon.RegionEndpoint regionEndpoint = Amazon.RegionEndpoint.GetBySystemName(region);
 
             if (regionEndpoint == null)
                 throw new ArgumentException(String.Format("Unknown S3 region: \"{0}\".", region), "region");
 
-            _S3Client = new AmazonS3Client(accessId, secretKey, regionEndpoint);
+            _S3Client = new AmazonS3Client(accessKeyId, secretAccessKey, regionEndpoint);
 
             if (!_S3Client.DoesS3BucketExist(bucketName))
                 throw new ArgumentException(String.Format("S3 bucket \"{0}\" does not exist or is not accessible.", bucketName), "bucketName");
         }
         #endregion
 
-        public string GetMediaUrl(string mediaKey)
+        /// <summary>
+        /// GetListing generates a list of <see cref="T:Amazon.S3.Model.S3Object" /> within a certain prefix, without recursing by default (folder specific listing)
+        /// </summary>
+        /// <param name="prefix">Prefix to list</param>
+        /// <param name="recursive">Request recursive listing under folder</param>
+        /// <returns>List of <see cref="T:Amazon.S3.Model.S3Object" /></returns>
+        /// <remarks>In Amazon S3, folders are non-existing items. This function generates pseudo-items for folders.</remarks>
+        internal IEnumerable<S3ItemData> GetListing(String prefix, bool recursive = false)
         {
-            S3FileInfo mediaInfo = new S3FileInfo(_S3Client, _bucketName, mediaKey);
-
-            if (mediaInfo.Exists)
-            {
-                var mediaUrl = FullBucketUrl + mediaKey;
-                mediaUrlForThumbnail = mediaUrl;
-
-                if (mediaUrl.Contains("%"))
-                {
-                    mediaUrl = mediaUrl.Replace("%", "%25");
-                }
-
-                return mediaUrl;
-            }
-            else
-            {
-                return "NOT FOUND";
-            }
-
-        }
-
-        public S3Info GetMediaInfo(IEclUri eclUri)
-        {
-            GetObjectResponse s3Obj;
-            var mediaKey = eclUri.ItemId;
-            GetObjectRequest request = new GetObjectRequest
-            {
+            ListObjectsV2Request request = new ListObjectsV2Request() {
                 BucketName = _bucketName,
-                Key = eclUri.ItemId,
+                FetchOwner = false,
+                Prefix = VirtualPathUtility.AppendTrailingSlash(GetFullPrefix(prefix)),
+                Delimiter = recursive ? null : "/"
             };
 
-            try
-            {
-                s3Obj = _S3Client.GetObject(request);
-                var mediaUrl = GetMediaUrl(mediaKey);
-              
-                S3Info s3Info = new S3Info(s3Obj, mediaUrl, eclUri.ItemType.ToString());
-                return s3Info;
-            }
-            catch (KeyNotFoundException)
-            {
-                throw new KeyNotFoundException();               
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            ListObjectsV2Response response = null;
+
+            do {
+                if (response != null && response.IsTruncated)
+                    request.ContinuationToken = response.NextContinuationToken;
+
+                response = _S3Client.ListObjectsV2(request);
+
+                foreach (String subPrefix in response.CommonPrefixes) {
+                    yield return GetFolder(StripPrefix(subPrefix));
+                }
+
+                foreach (S3Object s3Object in response.S3Objects) {
+                    yield return new S3ItemData(StripPrefix(s3Object.Key), _bucketUrl, s3Object);
+                }
+
+            } while (response != null && response.IsTruncated);
         }
 
-        //Whole S3 Bucket Search
-        public List<S3Info> SearchInS3(IEclUri parentFolderUri, EclItemTypes itemTypes, string searchTerm = null)
+        /// <summary>
+        /// Gets a <see cref="S3Object" /> representing a folder
+        /// </summary>
+        /// <param name="key">Amazon S3 Key</param>
+        /// <returns><see cref="T:Amazon.S3.Model.S3Object" /></returns>
+        /// <remarks>Folders in Amazon S3 are virtual hence the returned object is shallow wrapper</remarks>
+        internal S3ItemData GetFolder(String key)
         {
-            List<S3Info> s3SearchList = new List<S3Info>();
-            ListObjectsRequest objRequest = new ListObjectsRequest();
-            objRequest.BucketName = _bucketName;           
-            var ItemTypes = "";
-            var returnedKey = "";
-            //TODO: This pick all objects/items from s3 to search, where we should target to get object based on folder we are in
-            ListObjectsResponse objResponse = _S3Client.ListObjects(objRequest);            
-            foreach (S3Object obS3Object in objResponse.S3Objects)
-            {
-                if (obS3Object.Size == 0)
-                {
-                    ItemTypes = "Folder";
-                    var nameArray = obS3Object.Key.Split('/');
-                    int count = nameArray.Length;
-                    returnedKey = nameArray[count - 2].TrimEnd('/');
-                }
-                else
-                {
-                    ItemTypes = "File";
-                    var nameArray = obS3Object.Key.Split('/');
-                    int count = nameArray.Length;
-                    returnedKey = nameArray[count - 1];
-
-                }
-                if (returnedKey.Contains(searchTerm))
-                {
-                    var itemUrl = FullBucketUrl + obS3Object.Key;
-                    s3SearchList.Add(new S3Info(obS3Object, itemUrl, ItemTypes));
-                }
-            }
-
-            return s3SearchList;
+            return new S3ItemData(VirtualPathUtility.RemoveTrailingSlash(key), _bucketUrl, new S3Object() {
+                BucketName = _bucketName,
+                Key = _prefix + VirtualPathUtility.RemoveTrailingSlash(key),
+                StorageClass = "Folder"
+            });
         }
 
-        //Search based on Directory
-        public List<S3Info> SearchInS3Folders(IEclUri parentFolderUri, EclItemTypes itemTypes, string searchTerm = null)
+        /// <summary>
+        /// Gets the full media URL of the specified AWS S3 asset
+        /// </summary>
+        /// <param name="key">AWS S3 ECL Key.</param>
+        /// <returns>Absolute URL to the asset</returns>
+        internal String GetMediaUrl(String key)
         {
-            List<S3Info> s3SearchList = new List<S3Info>();
-            S3DirectoryInfo s3Root = null;        
-            if (parentFolderUri.ItemId == "root")
-            {
-                s3Root = new S3DirectoryInfo(_S3Client, _bucketName);
-            }
-            else
-            {
-                s3Root = new S3DirectoryInfo(_S3Client, _bucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
-            }
-
-            /*
-            //Search Folder
-            foreach (var subdirectories in s3Root.GetDirectories())
-            {             
-                if (subdirectories.Name.Contains(searchTerm))
-                {
-                    var item = subdirectories.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-                    var itemUrl = FullBucketUrl + item;
-                    s3SearchList.Add(new S3Info(subdirectories, itemUrl, "Folder"));
-                }
-            }
-
-            //Search Files
-            foreach (var file in s3Root.GetFiles())
-            {                
-                if (file.Name.Contains(searchTerm))
-                {
-                    var item = file.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-                    var itemUrl = FullBucketUrl + item;
-                    s3SearchList.Add(new S3Info(file, itemUrl, "File"));
-                }
-            }
-            */
-            return s3SearchList;
+            return _bucketUrl + GetFullPrefix(key).Replace("%", "%25");
         }
 
-        public List<S3Info> GetDirectories(IEclUri parentFolderUri, EclItemTypes itemTypes)
+        /// <summary>
+        /// Retrieve <see cref="T:Amazon.S3.Model.S3Object" /> for the specified <paramref name="key" />
+        /// </summary>
+        /// <param name="key">Amazon S3 Key</param>
+        /// <returns><see cref="T:Amazon.S3.Model.S3Object" /></returns>
+        internal S3ItemData GetObject(String key)
         {
-            List<S3Info> s3List = new List<S3Info>();
-            List<S3Info> myList = new List<S3Info>();
-            S3DirectoryInfo s3Root = null;
+            ListObjectsV2Request request = new ListObjectsV2Request() {
+                BucketName = _bucketName,
+                FetchOwner = true,
+                Prefix = GetFullPrefix(key),
+                MaxKeys = 1
+            };
 
-            if (parentFolderUri.ItemId == "root")
-            {
-                s3Root = new S3DirectoryInfo(_S3Client, _bucketName);
-            }
-            else
-            {              
-                s3Root = new S3DirectoryInfo(_S3Client, _bucketName, parentFolderUri.ItemId.Replace('/', '\\').TrimEnd('/'));
-            }
+            ListObjectsV2Response response = _S3Client.ListObjectsV2(request);
 
-            /*
-            if (parentFolderUri.ItemType == EclItemTypes.MountPoint && itemTypes.HasFlag(EclItemTypes.Folder) && !itemTypes.HasFlag(EclItemTypes.File))
-            {
-                foreach (var subdirectories in s3Root.GetDirectories())
-                {
-                    var item = subdirectories.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-                    var itemUrl = FullBucketUrl + item;
-                    myList.Add(new S3Info(subdirectories, itemUrl, "Folder"));
+            if (response != null) {
+                S3Object s3Object = response.S3Objects.FirstOrDefault();
+
+                if (s3Object != null) {
+                    return new S3ItemData(StripPrefix(s3Object.Key), _bucketUrl, s3Object);
                 }
             }
-            else */
 
-            if (itemTypes.HasFlag(EclItemTypes.File) && itemTypes.HasFlag(EclItemTypes.Folder))
-            {
-                myList.AddRange(s3Root.GetDirectories().Select(d => new S3Info(d, FullBucketUrl)));
-                myList.AddRange(s3Root.GetFiles().Select(f => new S3Info(f, FullBucketUrl)));
-            }
-            /*
-            else if (itemTypes.HasFlag(EclItemTypes.Folder))
-            {
-
-                foreach (var subdirectories in s3Root.GetDirectories())
-                {
-                    var item = subdirectories.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-                    var itemUrl = FullBucketUrl + item;
-                    myList.Add(new S3Info(subdirectories, itemUrl, "Folder"));
-                }
-            }
-            */
-            /*
-            else if (itemTypes.HasFlag(EclItemTypes.File))
-            {
-
-                foreach (var file in s3Root.GetFiles())
-                {
-                    var item = file.FullName.Split(':')[1].Replace('\\', '/').TrimStart('/');
-                    var itemUrl = FullBucketUrl + item;
-                    myList.Add(new S3Info(file, itemUrl, "File"));
-                }
-            }
-            */
-            else
-            {
-                throw new NotSupportedException();
-            }          
-            return myList;
+            return null;
         }
-        public static string GetPhotoUrl(S3Info photo, PhotoSizeEnum size)
+
+
+        internal void RenameFolder(String sourceKey, String destKey)
         {
-            string baseUrl = photo.MediaUrl;
+            String fullSource = GetFullPrefix(sourceKey);
+            String fullDest = GetFullPrefix(destKey);
 
-            string url = string.Format("{0}?{1}", baseUrl, size.Description());
+            ListObjectsV2Request request = new ListObjectsV2Request() {
+                BucketName = _bucketName,
+                FetchOwner = false,
+                Prefix = VirtualPathUtility.AppendTrailingSlash(fullSource),
+            };
 
-            return url;
+            ListObjectsV2Response response = null;
+
+            do {
+                if (response != null && response.IsTruncated)
+                    request.ContinuationToken = response.NextContinuationToken;
+
+                response = _S3Client.ListObjectsV2(request);
+
+                foreach (S3Object s3Object in response.S3Objects) {
+                    String newKey = fullDest + s3Object.Key.Substring(fullSource.Length);
+                    RenameObject(s3Object.Key, newKey);
+                }
+
+            } while (response != null && response.IsTruncated);
         }
-        public static string GetPhotoUrl(S3Info photo, int width = MaxWidth)
+
+        internal void RenameObject(String sourceKey, String destKey)
         {
-            if (width >= MaxWidth)
-            {
-                // width 1024, height 768
-                return GetPhotoUrl(photo, PhotoSizeEnum.Large);
-            }
-            if (width >= 800)
-            {
-                // width 800, height 600
-                return GetPhotoUrl(photo, PhotoSizeEnum.Svga);
-            }
-            if (width >= 640)
-            {
-                // width 640, height 480
-                return GetPhotoUrl(photo, PhotoSizeEnum.Vga);
-            }
-            if (width >= 500)
-            {
-                // width 500, height 375
-                return GetPhotoUrl(photo, PhotoSizeEnum.Medium);
-            }
-            if (width >= 320)
-            {
-                // width 320, height 240
-                return GetPhotoUrl(photo, PhotoSizeEnum.Qvga);
-            }
-            if (width >= 240)
-            {
-                // width 240, height 180
-                return GetPhotoUrl(photo, PhotoSizeEnum.Small);
-            }
-            if (width >= 150)
-            {
-                // width 150, height 150
-                return GetPhotoUrl(photo, PhotoSizeEnum.LargeSquare);
-            }
-            if (width >= 100)
-            {
-                // width 100, height 75
-                return GetPhotoUrl(photo, PhotoSizeEnum.Thumbnail);
-            }
-            // width 75, height 75
-            return GetPhotoUrl(photo, PhotoSizeEnum.Square);
+            CopyObjectRequest request = new CopyObjectRequest() {
+                CannedACL = S3CannedACL.PublicRead,
+                DestinationBucket = _bucketName,
+                DestinationKey = GetFullPrefix(destKey),
+                MetadataDirective = S3MetadataDirective.COPY,
+                SourceBucket = _bucketName,
+                SourceKey = GetFullPrefix(sourceKey)
+            };
+
+            S3ItemData destination = GetObject(destKey);
+
+            if (destination != null)
+                throw new Exception(String.Format("Destination object with key {0} already exists.", request.DestinationKey));
+
+            CopyObjectResponse response = _S3Client.CopyObject(request);
+
+            if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                throw new Exception(String.Format("Failed to copy {0} to {1}", request.SourceKey, request.DestinationKey));
+
+            _S3Client.Delete(_bucketName, request.SourceKey, null);
         }
     }
 }

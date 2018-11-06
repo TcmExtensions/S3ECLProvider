@@ -1,6 +1,2 @@
-dependencies.txt
-Tridion.Common.dll
-Tridion.ContentManager.CoreService.Client.dll
-Tridion.ContentManager.dll
 Tridion.ExternalContentLibrary.V2.dll
-Tridion.ExternalContentLibrary.V2.xml
+

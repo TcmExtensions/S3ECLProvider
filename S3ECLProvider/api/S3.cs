@@ -125,7 +125,7 @@ namespace S3ECLProvider.API
         /// <returns>Absolute URL to the asset</returns>
         internal String GetMediaUrl(String key)
         {
-            return _bucketUrl + GetFullPrefix(key).Replace("%", "%25");
+            return _S3Client.GeneratePreSignedURL(_bucketName, _prefix + VirtualPathUtility.RemoveTrailingSlash(key), DateTime.Now.AddDays(1), null);
         }
 
         /// <summary>

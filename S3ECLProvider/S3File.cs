@@ -105,8 +105,8 @@ namespace S3ECLProvider
         public override bool CanGetViewItemUrl
         {
             get {
-                // Files in S3 are multimedia items and do support viewing
-                return true;
+                // Images in S3 do support viewing
+                return Provider.IsImageType(Id);
             }
         }
 
@@ -176,7 +176,7 @@ namespace S3ECLProvider
         {
             using (HttpClient client = new HttpClient()) {
                 try {
-                    MemoryStream stream = new MemoryStream(client.GetByteArrayAsync(_itemData.Url).Result);
+                    MemoryStream stream = new MemoryStream(client.GetByteArrayAsync(Provider.S3.GetMediaUrl(Id.ItemId)).Result);
                     return Session.HostServices.CreateContentResult(stream, stream.Length, MimeType);
                 } catch (Exception) {
                     return null;

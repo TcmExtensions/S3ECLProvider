@@ -130,7 +130,7 @@ namespace S3ECLProvider.Web
                 WriteCondition(writer, "starts-with", "$key", VirtualPathUtility.AppendTrailingSlash(_config["Prefix"]));
 
                 // success_action_redirect
-                WriteCondition(writer, "success_action_redirect", SuccessRedirect);
+				WriteCondition(writer, "success_action_redirect", SuccessRedirect);
 
                 // x-amz-date
                 WriteCondition(writer, "x-amz-date", Date);
@@ -185,14 +185,22 @@ namespace S3ECLProvider.Web
         protected String Prefix
         {
             get {
-                return VirtualPathUtility.AppendTrailingSlash(_config["Prefix"]) + VirtualPathUtility.AppendTrailingSlash(Request.Params["prefix"]) + "<file.ext>";
+                return VirtualPathUtility.RemoveTrailingSlash(_config["Prefix"]) + VirtualPathUtility.AppendTrailingSlash(Request.Params["prefix"]) + "<file.ext>";
             }
         }
 
         protected String SuccessRedirect
         {
             get {
-                return Request.Url.GetLeftPart(UriPartial.Path) + "?success=true";
+                String host = String.Empty;
+
+                if (_config.TryGetValue("CmsUrl", out host)) {
+                    return String.Format("{0}{1}?success=true",
+                        VirtualPathUtility.AppendTrailingSlash(host),
+                        Request.Url.AbsolutePath);
+                } else {
+                    return Request.Url.GetLeftPart(UriPartial.Path) + "?success=true";
+                }
             }
         }
 

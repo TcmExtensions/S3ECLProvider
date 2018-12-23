@@ -26,6 +26,7 @@
         <CacheControl>HTTP Cache-Control header to apply to all uploads</CacheControl>
         <BucketUrl>AWS full bucket URL with / as a suffix</BucketUrl>
         <CacheTime>Number of seconds for which to cache AWS S3 items in the CME</CacheTime>
+        <CmsUrl>Optional external URL of the CMS to redirect to after upload</CmsUrl>
       </S3ECLProvider>
 
     </MountPoint>

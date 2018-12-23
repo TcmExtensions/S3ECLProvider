@@ -127,7 +127,7 @@ namespace S3ECLProvider
             return _hostServices.CreateEclUri(
                 contextUri.PublicationId,
                 contextUri.MountPointId,
-                item.Key,
+                item.EclKey,
                 item.ItemType == S3ItemType.Folder ? Constants.S3_FOLDER_ID : Constants.S3_FILE_ID,
                 item.ItemType == S3ItemType.Folder ? EclItemTypes.Folder : EclItemTypes.File);
         }

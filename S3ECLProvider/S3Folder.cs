@@ -32,6 +32,14 @@ namespace S3ECLProvider
         }
 
         /// <summary>
+        /// Initialize a new <see cref="S3Folder" /> in a given context
+        /// </summary>
+        /// <param name="item"><see cref="S3Folder"/> to create a shallow clone from</param>
+        public S3Folder(S3ListItem item, IEclUri contextUri) : base(item, contextUri)
+        {
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the user can open this item.
         /// </summary>
         /// <remarks>

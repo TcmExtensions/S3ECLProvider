@@ -52,6 +52,21 @@ namespace S3ECLProvider
         }
 
         /// <summary>
+        /// Initialize a new <see cref="S3ListItem" /> in a given context
+        /// </summary>
+        /// <param name="item"><see cref="S3ListItem"/> to create a shallow clone from</param>
+        public S3ListItem(S3ListItem item, IEclUri contextUri)
+        {
+            Provider = item.Provider;
+            Session = item.Session;
+            ParentId = item.ParentId;
+
+            _itemData = item._itemData;
+
+            Id = item.Id.GetInPublication(contextUri.PublicationId);
+        }
+        
+        /// <summary>
         /// Associated <see cref="S3Provider"/>
         /// </summary>
         /// <value>
@@ -135,7 +150,7 @@ namespace S3ECLProvider
         /// <summary>
         /// Gets the unique id of the item.
         /// </summary>
-        public IEclUri Id { get; }
+        public IEclUri Id { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether a thumbnail view is available for this item.

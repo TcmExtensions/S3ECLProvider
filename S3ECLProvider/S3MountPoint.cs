@@ -166,7 +166,7 @@ namespace S3ECLProvider
         /// </remarks>
         public IContentLibraryItem GetItem(IEclUri eclUri)
         {
-            S3ListItem item = _provider.Cached(eclUri.ItemId);
+            S3ListItem item = _provider.Cached(eclUri.ItemId, eclUri);
 
             if (item == null) {
 

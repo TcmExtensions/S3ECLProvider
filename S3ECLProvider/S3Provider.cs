@@ -89,10 +89,28 @@ namespace S3ECLProvider
         /// </summary>
         /// <typeparam name="T"><see cref="T:S3ECLProvider.S3ListItem"/></typeparam>
         /// <param name="key">AWS S3 Key</param>
+        /// <param name="contextUri">Context to return the item in</param>
         /// <returns>Requested item or null</returns>
-        public S3ListItem Cached(String key)
+        public S3ListItem Cached(String key, IEclUri contextUri)
         {
-            return _cache.Get(key) as S3ListItem;
+            S3ListItem item = _cache.Get(key) as S3ListItem;
+
+            if (item != null) {
+                // Item was cached in this context, return it
+                if (item.Id.PublicationId == contextUri.PublicationId)
+                    return item;
+
+                // Contextualized item requested, create a shallow clone
+                if (item is S3File)
+                    return new S3File(item, contextUri);
+
+                if (item is S3Folder)
+                    return new S3Folder(item, contextUri);
+
+                return new S3ListItem(item, contextUri);
+            }
+
+            return null;
         }
 
         /// <summary>

@@ -41,6 +41,14 @@ namespace S3ECLProvider
         }
 
         /// <summary>
+        /// Initialize a new <see cref="S3File" /> in a given context
+        /// </summary>
+        /// <param name="item"><see cref="S3File"/> to create a shallow clone from</param>
+        public S3File(S3ListItem item, IEclUri contextUri) : base(item, contextUri)
+        {
+        }
+
+        /// <summary>
         /// Gets the filename including extension; <c>null</c> if the filename is not available.
         /// </summary>
         public string Filename

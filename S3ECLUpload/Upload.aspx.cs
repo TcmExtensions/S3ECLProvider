@@ -185,7 +185,7 @@ namespace S3ECLProvider.Web
         protected String Prefix
         {
             get {
-                return VirtualPathUtility.RemoveTrailingSlash(_config["Prefix"]) + VirtualPathUtility.AppendTrailingSlash(Request.Params["prefix"]) + "<file.ext>";
+                return VirtualPathUtility.AppendTrailingSlash(_config["Prefix"]) + VirtualPathUtility.AppendTrailingSlash(Request.Params["prefix"]) + "<file.ext>";
             }
         }
 
